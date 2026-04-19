@@ -34,30 +34,31 @@
 }
 
 .player-card {
-    /* Ajusta el alto para que no choque con los bordes del celular */
-    max-height: 92vh;
-    width: 90%;
-    max-width: 340px;
-    /* ... resto de tu código ... */
+    width: 92%;
+    max-width: 360px;
+    height: 95vh; /* Usa casi todo el alto de la pantalla */
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(15px);
+    border-radius: 25px;
 }
 
-    /* --- ESTO ACTIVA EL SCROLL --- */
-    #list {
-        flex-grow: 1; /* Ocupa el espacio sobrante */
-        overflow-y: auto; /* Activa el scroll vertical */
-        margin-top: 15px;
-        padding-right: 5px;
-    }
+/* LA CLAVE: La lista ahora es flexible */
+#list {
+    flex: 1; /* Esto le dice a la lista: "toma TODO el espacio que sobre abajo" */
+    overflow-y: auto; /* Activa el scroll si hay muchas canciones */
+    margin-top: 10px;
+    min-height: 0; /* Importante para que el scroll funcione en flexbox */
+}
 
-    /* Estilo elegante para el scroll */
-    #list::-webkit-scrollbar { width: 4px; }
-    #list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-
-    .song-item {
-        display: flex; align-items: center; padding: 8px; gap: 10px;
-        border-radius: 10px; margin-bottom: 5px;
-        background: rgba(255,255,255,0.03); cursor: pointer;
-    }
+/* Hacemos los items un poco más compactos para que quepan más */
+.song-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    background: rgba(255, 255, 255, 0.03);
+}
 
     .active-song { background: rgba(255,255,255,0.15) !important; border-left: 3px solid #fff; }
 
