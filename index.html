@@ -20,36 +20,26 @@
    
     <style>
   body { 
-        background: #0f0c29; 
-        color: #fff; 
-        font-family: 'Segoe UI', sans-serif; 
-        margin: 0; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        min-height: 100vh;
-        overflow: hidden; /* Evita que rebote toda la página */
-    }
+    background: #0f0c29; 
+    color: #fff; 
+    font-family: 'Segoe UI', sans-serif; 
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    /* Estas dos líneas son la clave para llenar la pantalla */
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
 
-    #bg-dinamico {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
-        background-size: cover; background-position: center;
-        filter: blur(60px) brightness(0.4);
-        transition: background-image 1s ease-in-out;
-    }
-
-    .player-card {
-        width: 90%;
-        max-width: 340px;
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        max-height: 90vh; /* Altura máxima para que quepa en el cel */
-    }
+.player-card {
+    /* Ajusta el alto para que no choque con los bordes del celular */
+    max-height: 92vh;
+    width: 90%;
+    max-width: 340px;
+    /* ... resto de tu código ... */
+}
 
     /* --- ESTO ACTIVA EL SCROLL --- */
     #list {
