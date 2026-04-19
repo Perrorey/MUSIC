@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>WHITE MUSIC - LIQUID GLASS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --liquid-glow: rgba(255, 255, 255, 0.4);
+        }
+
+        body { 
+            margin: 0; padding: 0; width: 100vw; height: 100dvh;
+            display: flex; justify-content: center; align-items: center;
+            background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif;
+            touch-action: manipulation;
+        }
+
+        #bg-dinamico {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2; background-size: cover; background-position: center;
+            filter: blur(50px) brightness(0.5); transition: background-image 1.2s ease;
+        }
+
+        .player-card {
+            width: 100%; height: 100%; max-width: 450px;
+            background: var(--glass-bg); backdrop-filter: blur(30px) saturate(160%);
+            display: flex; flex-direction: column; padding: 25px;
+            box-sizing: border-box; justify-content: space-between;
+            border: 1px solid var(--glass-border);
+            animation: fadeInCard 1s ease;
+        }
+
+        @keyframes fadeInCard { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        /* Ajuste para PC o Tablets */
+        @media (min-width: 500px) {
+            .player-card { height: 90vh; border-radius: 45px; box-shadow: 0 40px 100px rgba(0,0,0,0.6); }
+        }
+
+        #cover-box {
+            width: 100%; max-height: 38vh;
+            display: flex; justify-content: center; align-items: center;
+            position: relative;
+        }
+
+        #current-cover {
+            width: 85%; aspect-ratio: 1/1; object-fit: cover;
+            border-radius: 35px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #visualizer { position: absolute; bottom: -10px; width: 100%; height: 60px; pointer-events: none; opacity: 0.6; }
+
+        .info-section { text-align: center; margin-top: 10px; }
+        
+        #title {
+            margin: 0; font-size: 24px; color: #fff;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.3); font-weight: 700;
+        }
+
+        #artist {
+            margin: 5px 0; font-size: 16px; color: rgba(255, 255, 255, 0.6);
+        }
+
+        #progress-container {
+            width: 100%; height: 7px; background: rgba(255,255,255,0.15);
+            border-radius: 20px; cursor: pointer; margin-top: 15px; position: relative;
+        }
+
+        #progress { 
+            height: 100%; background: linear-gradient(90deg, #fff, #99c2ff);
+            box-shadow: 0 0 15px var(--liquid-glow); border-radius: 20px; width: 0%;
+        }
+
+        .time-info {
+            display: flex; justify-content: space-between;
+            font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 8px; font-weight: bold;
+        }
+
+        .controls {
+            display: flex; justify-content: center; align-items: center;
+            gap: 20px; margin: 15px 0;
+        }
+
+        .controls button { background: none; border: none; color: white; cursor: pointer; transition: 0.3s; }
+        
+        #play-btn { 
+            width: 75px; height: 75px; border-radius: 50%; 
+            background: rgba(255, 255, 255, 0.2); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.4); color: white;
+            display: flex; align-items: center; justify-content: center; font-size: 26px;
+            box-shadow: inset 4px 4px 12px rgba(255,255,255,0.3), inset -4px -4px 12px rgba(0,0,0,0.2), 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        #play-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.3); }
+
+        .controls button:not(#play-btn) {
+            background: rgba(255,255,255,0.1); width: 50px; height: 50px;
+            border-radius: 50%; border: 1px solid var(--glass-border); font-size: 18px;
+        }
+
+        #searchInput {
+            width: 100%; padding: 14px; border-radius: 20px; border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.08); color: white; margin-bottom: 15px; outline: none;
+            box-sizing: border-box; backdrop-filter: blur(15px); text-align: center;
+        }
+
+        #list { 
+            flex: 1; overflow-y: auto; padding-right: 5px;
+            mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+        }
+        
+        #list::-webkit-scrollbar { display: none; }
+
+        .song-item {
+            display: flex; align-items: center; padding: 12px; gap: 15px;
+            border-radius: 20px; margin-bottom: 10px; transition: 0.3s;
+            background: rgba(255,255,255,0.04); border: 1px solid transparent;
+        }
+
+        .active-song { 
+            background: rgba(255, 255, 255, 0.15) !important; 
+            border: 1px solid var(--glass-border);
+            transform: scale(1.02);
+        }
+
+        .song-item strong { color: #fff; font-size: 15px; display: block; text-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .song-item span { color: rgba(255,255,255,0.5); font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div id="bg-dinamico"></div>
+    <audio id="audio-player" crossorigin="anonymous"></audio>
+
+    <div class="player-card">
+        <div id="cover-box">
+            <img src="portada_orgullo.jpg" id="current-cover">
+            <canvas id="visualizer"></canvas>
+        </div>
+
+        <div class="info-section">
+            <h2 id="title">Selecciona música</h2>
+            <p id="artist">Cargando...</p>
+        </div>
+
+        <div>
+            <div id="progress-container">
+                <div id="progress"></div>
+            </div>
+            <div class="time-info">
+                <span id="current-time">0:00</span>
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button onclick="changeSong(-1)"><i class="fas fa-step-backward"></i></button>
+            <button onclick="playPause()" id="play-btn"><i class="fas fa-play"></i></button>
+            <button onclick="changeSong(1)"><i class="fas fa-step-forward"></i></button>
+        </div>
+
+        <input type="text" id="searchInput" placeholder="🔍 Buscar en tu lista...">
+        <div id="list"></div>
+    </div>
+
+    <script>
+        let currentSongIndex = 0;
+        let isPlaying = false;
+        let audioCtx, analyzer, source, dataArray, canvas, canvasCtx;
+
+        let songs = [
+            { title: 'ORGULLO', artist: 'Rels B', img: 'portada_orgullo.jpg', file: 'Rels B - ORGULLO (Videoclip Oficial).mp3', time: '3:05' },
+            { title: 'pa quererte', artist: 'Rels B', img: 'portada2.jpg', file: 'Rels B - pa quererte (Video Oficial).mp3', time: '2:47' },
+            { title: 'TU VAS SIN', artist: 'Rels B', img: 'portada3.jpg', file: 'Rels B - TU VAS SIN.mp3', time: '1:50' },
+            { title: 'Moscow Mule', artist: 'Bad Bunny', img: 'portada4.jpg', file: 'Bad Bunny - Moscow Mule.mp3', time: '4:05' },
+            { title: 'Después de la Playa', artist: 'Bad Bunny', img: 'portada4.jpg', file: 'Bad Bunny - Después de la Playa.mp3', time: '3:50' },
+            { title: 'Me Porto Bonito', artist: 'Bad Bunny', img: 'portada4.jpg', file: 'Bad Bunny & Chencho Corleone - Me Porto Bonito.mp3', time: '2:58' },
+            { title: 'Tití Me Preguntó', artist: 'Bad Bunny', img: 'portada4.jpg', file: 'Bad Bunny - Tití Me Preguntó.mp3', time: '4:03' },
+            { title: 'Un Ratito', artist: 'Bad Bunny', img: 'portada4.jpg', file: 'Un Ratito.mp3', time: '2:56' },
+            { title: 'Yo No Soy Celoso', artist: 'Bad Bunny', img: 'portada4.jpg', file: 'Bad Bunny - Yo No Soy Celoso.mp3', time: '3:50' },
+            { title: 'Tarot', artist: 'Bad Bunny', img: 'portada4.jpg', file: 'Tarot.mp3', time: '3:57' }
+        ];
+
+        const audio = document.getElementById('audio-player');
+        const playBtn = document.getElementById('play-btn');
+
+        function updatePlaylist() {
+            const listDiv = document.getElementById('list');
+            listDiv.innerHTML = '';
+            songs.forEach((s, i) => {
+                const div = document.createElement('div');
+                div.className = `song-item ${i === currentSongIndex ? 'active-song' : ''}`;
+                div.innerHTML = `
+                    <img src="${s.img}" style="width: 50px; height: 50px; border-radius: 12px; object-fit: cover;">
+                    <div style="flex: 1; min-width: 0;">
+                        <strong>${s.title}</strong>
+                        <span>${s.artist}</span>
+                    </div>
+                    <div style="font-size: 11px; color: rgba(255,255,255,0.4);">${s.time}</div>
+                `;
+                div.onclick = () => { currentSongIndex = i; isPlaying = true; changeSong(0); };
+                listDiv.appendChild(div);
+            });
+        }
+
+        function playPause() {
+            if (audio.paused) {
+                if (!audio.src) changeSong(0);
+                startVisualizer();
+                audio.play();
+                isPlaying = true;
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                audio.pause();
+                isPlaying = false;
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+
+        function changeSong(step) {
+            currentSongIndex = (currentSongIndex + step + songs.length) % songs.length;
+            const song = songs[currentSongIndex];
+            
+            document.getElementById('title').textContent = song.title;
+            document.getElementById('artist').textContent = song.artist;
+            document.getElementById('current-cover').src = song.img;
+            document.getElementById('bg-dinamico').style.backgroundImage = `url('${song.img}')`;
+            
+            audio.src = song.file;
+            updatePlaylist();
+            
+            if (isPlaying) audio.play();
+            updateMediaSession();
+        }
+
+        function updateMediaSession() {
+            if ('mediaSession' in navigator) {
+                const song = songs[currentSongIndex];
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: song.title,
+                    artist: song.artist,
+                    artwork: [{ src: song.img, sizes: '512x512', type: 'image/png' }]
+                });
+                navigator.mediaSession.setActionHandler('play', playPause);
+                navigator.mediaSession.setActionHandler('pause', playPause);
+                navigator.mediaSession.setActionHandler('previoustrack', () => changeSong(-1));
+                navigator.mediaSession.setActionHandler('nexttrack', () => changeSong(1));
+            }
+        }
+
+        audio.addEventListener('timeupdate', () => {
+            if (audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progress').style.width = percent + '%';
+                document.getElementById('current-time').textContent = formatTime(audio.currentTime);
+                document.getElementById('duration').textContent = formatTime(audio.duration);
+            }
+        });
+
+        function formatTime(s) {
+            const min = Math.floor(s / 60);
+            const sec = Math.floor(s % 60);
+            return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+        }
+
+        document.getElementById('progress-container').onclick = function(e) {
+            const width = this.clientWidth;
+            const clickX = e.offsetX;
+            if (audio.duration) audio.currentTime = (clickX / width) * audio.duration;
+        };
+
+        function startVisualizer() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyzer = audioCtx.createAnalyser();
+            source = audioCtx.createMediaElementSource(audio);
+            source.connect(analyzer);
+            analyzer.connect(audioCtx.destination);
+            analyzer.fftSize = 64;
+            dataArray = new Uint8Array(analyzer.frequencyBinCount);
+            canvas = document.getElementById('visualizer');
+            canvasCtx = canvas.getContext('2d');
+            draw();
+        }
+
+        function draw() {
+            requestAnimationFrame(draw);
+            analyzer.getByteFrequencyData(dataArray);
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+            const barWidth = (canvas.width / dataArray.length) * 2;
+            let x = 0;
+            for(let i = 0; i < dataArray.length; i++) {
+                let h = dataArray[i] / 4;
+                canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+                canvasCtx.fillRect(x, canvas.height - h, barWidth - 1, h);
+                x += barWidth;
+            }
+        }
+
+        audio.onended = () => changeSong(1);
+        
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            document.querySelectorAll('.song-item').forEach((item, i) => {
+                const match = songs[i].title.toLowerCase().includes(term) || songs[i].artist.toLowerCase().includes(term);
+                item.style.display = match ? 'flex' : 'none';
+            });
+        });
+
+        window.onload = () => {
+            updatePlaylist();
+            const s = songs[0];
+            document.getElementById('title').textContent = s.title;
+            document.getElementById('artist').textContent = s.artist;
+            document.getElementById('current-cover').src = s.img;
+            document.getElementById('bg-dinamico').style.backgroundImage = `url('${s.img}')`;
+        };
+    </script>
+</body>
+</html>
