@@ -1,0 +1,15 @@
+{
+  "name": "White Music",
+  "short_name": "WhiteMusic",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0f0c29",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "Portadaapp.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
